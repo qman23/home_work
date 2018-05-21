@@ -1,12 +1,9 @@
 package cn.com.helen.work;
 
-import java.io.File;
 import java.net.URLDecoder;
 import java.util.ArrayList;
-import java.util.Base64.Decoder;
 import java.util.List;
 import java.util.Random;
-import java.util.concurrent.SynchronousQueue;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
@@ -18,7 +15,7 @@ public class Calculate {
 
 	private static ScriptEngine jse = new ScriptEngineManager().getEngineByName("JavaScript"); 
 	
-	private static final int RANGE = 30;
+	private static int RANGE = 30;
 	
 	private static int getRandomIntByRange(int range) {
 		return new Random().nextInt(range);
@@ -27,21 +24,33 @@ public class Calculate {
 	private static String getSymbol() {
 		return new Random().nextInt(10)%2==0?"+":"-";
 	}
+	
 	/**
 	 * generate formula
 	 * @return
 	 * @throws Exception 
 	 */
 	private static String generateFormula(int elementCount) throws Exception {
+		final int ELE_RANGE = RANGE;
 		if(elementCount<2) {
 			throw new Exception("算式的成员必须大于两个！");
 		}
 		StringBuilder sb = new StringBuilder();
-		for(int i=0;i<elementCount;i++) {
-			sb.append(getRandomIntByRange(RANGE));
-			if(i<elementCount-1) {
-				sb.append(getSymbol());
+		int firstElement = getRandomIntByRange(ELE_RANGE);
+		int nextElement = 0;
+		sb.append(firstElement);
+		for(int i=0;i<elementCount-1;i++){
+			int tempResult = -1;
+			String symbol = "";
+			while(tempResult<0 || tempResult>RANGE){
+				symbol = getSymbol();
+				nextElement = getRandomIntByRange(ELE_RANGE);
+				tempResult=new Integer(jse.eval(firstElement+symbol+nextElement).toString());
 			}
+			firstElement = tempResult;
+			sb.append(symbol);
+			sb.append(nextElement);
+			
 		}
 		return sb.toString();
 	}
@@ -89,13 +98,15 @@ public class Calculate {
 			e.printStackTrace();
 		}
 	}
+	
 	public static void main(String[] args) throws Exception {
-		if(args==null || args.length<2) {
-			throw new Exception("必须提供需要生成算式的个数，和算式的元数！");
+		if(args==null || args.length<3) {
+			throw new Exception("必须提供需要生成算式的个数，算式的元数，以及表达式的范围！");
 		}
 		
 		int formulaCount = new Integer(args[0]);
 		int elementCount = new Integer(args[1]);
+		Calculate.RANGE = new Integer(args[2]);
 		generate(formulaCount,elementCount);
 	}
 }

@@ -12,7 +12,7 @@ import jxl.write.WritableSheet;
 import jxl.write.WritableWorkbook;
 
 public class ExcelUtil {
-	private static final int COLUNM = 3;
+	private static final int COLUNM = 4;
 	public static void generateExcelFile(String filePath,String fileName,List<String> containList) throws Exception {
 		if(containList==null || containList.size()<1) {
 			throw new Exception("没有找到要生成的内容！");
